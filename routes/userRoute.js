@@ -14,13 +14,17 @@ router.post("/login", userController.loginUser);
 
 router.post("/logout", userController.logoutUser);
 
-//Todo: will be removed in the future, testing purpose only
-router.get("/check", authController.isAuthenticatedUser, (req, res) => {
-  console.log(req.user);
-  res.status(200).json({
-    success: true,
-    user: req.user,
-  });
-});
+router.post("/verify", userController.verifyUser);
+
+router.post(
+  "/updatepassword",
+  authController.isAuthenticatedUser,
+  userController.updateUserPassword
+);
+router.get(
+  "/me",
+  authController.isAuthenticatedUser,
+  userController.getUserDetail
+);
 
 module.exports = router;
