@@ -11,6 +11,7 @@ const app = express();
 
 //Route
 const userRouter = require("./routes/userRoute");
+const carRouter = require("./routes/carRoute");
 
 //Middleware and packages
 app.use(cookieParser());
@@ -20,6 +21,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/user", userRouter);
+app.use("/api/car", carRouter);
 
 //
 mongoose.connect(process.env.DB_URL, () => {

@@ -38,6 +38,16 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  current_location: [
+    {
+      lat: {
+        type: Number,
+      },
+      lng: {
+        type: Number,
+      },
+    },
+  ],
   otp: String,
   otpExpire: Date,
   resetPasswordToken: String,
@@ -52,6 +62,12 @@ const userSchema = new mongoose.Schema({
   ],
   driver_available: {
     type: Boolean,
+  },
+
+  //SOFT DELETE
+  is_deleted: {
+    type: Boolean,
+    default: false,
   },
 });
 

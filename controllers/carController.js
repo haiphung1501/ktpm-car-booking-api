@@ -4,21 +4,29 @@ const ErrorHandler = require("../utils/errorHandler");
 
 const carController = {
   createCar: catchAsyncError(async (req, res, next) => {
-    const { model, color, type, licensePlate, capacity } = req.body;
-    if (!model || !color || !type || !licensePlate || !capacity) {
+    const { brand, model, color, licensePlate } = req.body;
+
+    if (!model || !color || !brand || !licensePlate) {
       return next(new ErrorHandler("Please enter all fields", 400));
     }
+
     const existingCar = await Car.findOne({ licensePlate });
     if (existingCar) {
       return next(new ErrorHandler("Car already exists", 400));
     }
+    //how to append this to driver array in user model?
+
     const car = await Car.create({
+      brand,
       model,
       color,
-      type,
       licensePlate,
-      capacity,
     });
+
+    //Driver is the user who created the car
+    req.user.cars.push(car._id);
+    await req.user.save();
+
     res.status(200).json({
       success: true,
       message: "Car created successfully",
@@ -26,3 +34,5 @@ const carController = {
     });
   }),
 };
+
+module.exports = carController;

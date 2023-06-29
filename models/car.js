@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const carSchema = new mongoose.Schema({
+  brand: {
+    type: String,
+    required: true,
+  },
   model: {
     type: String,
     required: true,
@@ -21,8 +25,13 @@ const carSchema = new mongoose.Schema({
   },
   capacity: {
     type: Number,
+    default: 4,
   },
   car_verified: {
+    type: Boolean,
+    default: false,
+  },
+  is_delete: {
     type: Boolean,
     default: false,
   },
