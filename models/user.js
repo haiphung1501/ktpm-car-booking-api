@@ -42,6 +42,17 @@ const userSchema = new mongoose.Schema({
   otpExpire: Date,
   resetPasswordToken: String,
   resetPasswordExpire: Date,
+
+  //FOR DRIVER ONLY
+  cars: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Car",
+    },
+  ],
+  driver_available: {
+    type: Boolean,
+  },
 });
 
 userSchema.pre("save", async function (next) {
