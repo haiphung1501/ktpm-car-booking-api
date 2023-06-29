@@ -63,6 +63,10 @@ const userSchema = new mongoose.Schema({
   driver_available: {
     type: Boolean,
   },
+  rating: {
+    type: Number,
+    default: 0,
+  },
 
   //SOFT DELETE
   is_deleted: {
