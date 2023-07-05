@@ -27,4 +27,7 @@ router.get(
   userController.getUserDetail
 );
 
+//ADMIN
+router.get("/all", userController.getAllUsers);
+
 module.exports = router;

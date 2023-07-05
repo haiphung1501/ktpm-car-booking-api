@@ -31,6 +31,8 @@ const carSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+
+  //SOFT DELETE
   is_delete: {
     type: Boolean,
     default: false,

@@ -53,7 +53,7 @@ const userSchema = new mongoose.Schema({
   resetPasswordToken: String,
   resetPasswordExpire: Date,
 
-  //FOR DRIVER ONLY
+  //FOR DRIVER ONLY (HAS PREFIX DRIVER)
   cars: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -63,7 +63,7 @@ const userSchema = new mongoose.Schema({
   driver_available: {
     type: Boolean,
   },
-  rating: {
+  driver_rating: {
     type: Number,
     default: 0,
   },

@@ -141,6 +141,15 @@ const userController = {
 
     sendToken(user, 200, res);
   }),
+
+  //ADMIN
+  getAllUsers: catchAsyncError(async (req, res, next) => {
+    const users = await User.find();
+    res.status(200).json({
+      success: true,
+      users,
+    });
+  }),
 };
 
 module.exports = userController;

@@ -12,6 +12,7 @@ const app = express();
 //Route
 const userRouter = require("./routes/userRoute");
 const carRouter = require("./routes/carRoute");
+const bookingRouter = require("./routes/bookingRoute");
 
 //Middleware and packages
 app.use(cookieParser());
@@ -22,6 +23,7 @@ app.use(express.json());
 
 app.use("/api/user", userRouter);
 app.use("/api/car", carRouter);
+app.use("/api/booking", bookingRouter);
 
 //
 mongoose.connect(process.env.DB_URL, () => {
