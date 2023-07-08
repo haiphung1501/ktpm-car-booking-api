@@ -27,13 +27,13 @@ const carSchema = new mongoose.Schema({
     type: Number,
     default: 4,
   },
-  car_verified: {
+  carVerified: {
     type: Boolean,
     default: false,
   },
 
   //SOFT DELETE
-  is_delete: {
+  isDeleted: {
     type: Boolean,
     default: false,
   },

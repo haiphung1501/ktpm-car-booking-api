@@ -11,4 +11,11 @@ router.post(
 );
 router.get("/all", bookingController.getAllBooking);
 
+router.put(
+  "/accept/:bookingId",
+  authController.isAuthenticatedUser,
+  authController.authorizeRoles("driver"),
+  bookingController.acceptBooking
+);
+
 module.exports = router;

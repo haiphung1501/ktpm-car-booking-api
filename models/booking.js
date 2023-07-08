@@ -19,6 +19,14 @@ const bookingSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Car",
   },
+  driverLocation: {
+    lat: {
+      type: Number,
+    },
+    lng: {
+      type: Number,
+    },
+  },
   pickupLocation: {
     lat: {
       type: Number,
@@ -70,6 +78,20 @@ const bookingSchema = new mongoose.Schema({
   //SECOND
   duration: {
     type: Number,
+  },
+  //FOR USER
+  cancelReason: {
+    type: String,
+  },
+
+  currentTime: {
+    type: Date,
+  },
+
+  //SOFT DELETE
+  isDeleted: {
+    type: Boolean,
+    default: false,
   },
 });
 

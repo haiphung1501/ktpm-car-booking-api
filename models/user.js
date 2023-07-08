@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  current_location: [
+  currentLocation: [
     {
       lat: {
         type: Number,
@@ -60,16 +60,16 @@ const userSchema = new mongoose.Schema({
       ref: "Car",
     },
   ],
-  driver_available: {
+  driverAvailable: {
     type: Boolean,
   },
-  driver_rating: {
+  driverRating: {
     type: Number,
     default: 0,
   },
 
   //SOFT DELETE
-  is_deleted: {
+  isDeleted: {
     type: Boolean,
     default: false,
   },

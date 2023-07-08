@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const io = require("socket.io");
 mongoose.set("strictQuery", true);
 
 dotenv.config();

@@ -14,7 +14,6 @@ const carController = {
     if (existingCar) {
       return next(new ErrorHandler("Car already exists", 400));
     }
-    //how to append this to driver array in user model?
 
     const car = await Car.create({
       brand,
