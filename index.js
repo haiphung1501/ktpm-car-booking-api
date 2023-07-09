@@ -1,19 +1,33 @@
+const http = require("http");
 const express = require("express");
 const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const io = require("socket.io");
+const socketIO = require("socket.io");
 mongoose.set("strictQuery", true);
 
 dotenv.config();
-const app = express();
-
 //Route
 const userRouter = require("./routes/userRoute");
 const carRouter = require("./routes/carRoute");
 const bookingRouter = require("./routes/bookingRoute");
+
+//Socket
+const setupNotificationSocket = require("./sockets/notificationSocket");
+
+//App config
+const app = express();
+const server = http.createServer(app);
+const io = socketIO(server);
+
+io.on("connection", (socket) => {
+  console.log("New client connected");
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+  });
+});
 
 //Middleware and packages
 app.use(cookieParser());
@@ -31,6 +45,9 @@ mongoose.connect(process.env.DB_URL, () => {
   console.log("Connected to MongoDB");
 });
 
-app.listen(process.env.PORT || 5000, () => {
+//Setup Socket
+// setupNotificationSocket(io);
+
+server.listen(process.env.PORT || 5000, () => {
   console.log(`Server is running on port ${process.env.PORT || 5000}`);
 });
