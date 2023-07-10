@@ -22,12 +22,12 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
 
-io.on("connection", (socket) => {
-  console.log("New client connected");
-  socket.on("disconnect", () => {
-    console.log("Client disconnected");
-  });
-});
+// io.on("connection", (socket) => {
+//   console.log("New client connected");
+//   socket.on("disconnect", () => {
+//     console.log("Client disconnected");
+//   });
+// });
 
 //Middleware and packages
 app.use(cookieParser());
@@ -46,7 +46,7 @@ mongoose.connect(process.env.DB_URL, () => {
 });
 
 //Setup Socket
-// setupNotificationSocket(io);
+setupNotificationSocket(io);
 
 server.listen(process.env.PORT || 5000, () => {
   console.log(`Server is running on port ${process.env.PORT || 5000}`);

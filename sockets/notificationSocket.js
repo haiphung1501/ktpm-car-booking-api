@@ -7,6 +7,7 @@ const setupNotificationSocket = (io) => {
 
     socket.on("driverAvailable", async (driverId) => {
       const driver = await User.findById(driverId);
+      console.log(driver);
       if (driver) {
         const newBookings = await Booking.find({ bookingStatus: "pending" });
 
@@ -19,6 +20,17 @@ const setupNotificationSocket = (io) => {
     socket.on("disconnect", () => {
       console.log("Client disconnected");
     });
+  });
+
+  Booking.watch().on("change", async (change) => {
+    if (
+      change.operationType === "insert" &&
+      change.fullDocument.bookingStatus === "pending"
+    ) {
+      console.log("run this");
+      const newBookings = await Booking.find({ bookingStatus: "pending" });
+      io.emit("newBooking", newBookings);
+    }
   });
 };
 

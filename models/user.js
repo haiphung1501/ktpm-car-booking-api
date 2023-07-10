@@ -38,16 +38,14 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  currentLocation: [
-    {
-      lat: {
-        type: Number,
-      },
-      lng: {
-        type: Number,
-      },
+  currentLocation: {
+    lat: {
+      type: Number,
     },
-  ],
+    lng: {
+      type: Number,
+    },
+  },
   otp: String,
   otpExpire: Date,
   resetPasswordToken: String,

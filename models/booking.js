@@ -59,6 +59,7 @@ const bookingSchema = new mongoose.Schema({
       "cancelled",
       "completed",
     ],
+    default: "pending",
   },
   paymentStatus: {
     type: String,
