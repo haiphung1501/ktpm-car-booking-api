@@ -63,6 +63,17 @@ const bookingController = {
       bookings,
     });
   }),
+
+  myBookings: catchAsyncError(async (req, res, next) => {
+    const bookings = await Booking.find({
+      userId: req.user._id,
+      isDeleted: false,
+    });
+    res.status(200).json({
+      success: true,
+      bookings,
+    });
+  }),
 };
 
 module.exports = bookingController;

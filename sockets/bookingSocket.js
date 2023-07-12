@@ -2,13 +2,21 @@ const Booking = require("../models/booking");
 
 const setupBookingSocket = (io) => {
   io.on("connection", (socket) => {
-    socket.on("createBooking", async (booking) => {
-      const newBooking = await Booking.create(booking);
-      io.emit("newBooking", newBooking);
+    console.log("New client connected");
+
+    Booking.watch().on("change", async (change) => {
+      const updatedBooking = change.fullDocument;
+      const bookingId = updatedBooking._id;
+
+      io.to(bookingId).emit("bookingUpdated", updatedBooking);
     });
 
-    socket.on("disconnect", () => {
-      console.log("User disconnected from booking socket");
+    socket.on("sendMessage", (data) => {
+      const { bookingId, message } = data;
+
+      Booking.findByIdAndUpdate();
     });
   });
 };
+
+module.exports = setupBookingSocket;

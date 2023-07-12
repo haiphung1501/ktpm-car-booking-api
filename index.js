@@ -15,6 +15,7 @@ const carRouter = require("./routes/carRoute");
 const bookingRouter = require("./routes/bookingRoute");
 
 //Socket
+const setupBookingSocket = require("./sockets/bookingSocket");
 const setupNotificationSocket = require("./sockets/notificationSocket");
 
 //App config
@@ -39,6 +40,9 @@ app.use(express.json());
 app.use("/api/user", userRouter);
 app.use("/api/car", carRouter);
 app.use("/api/booking", bookingRouter);
+app.use("/health", (req, res) => {
+  res.send("OK");
+});
 
 //
 mongoose.connect(process.env.DB_URL, () => {
@@ -47,6 +51,7 @@ mongoose.connect(process.env.DB_URL, () => {
 
 //Setup Socket
 setupNotificationSocket(io);
+setupBookingSocket(io);
 
 server.listen(process.env.PORT || 5000, () => {
   console.log(`Server is running on port ${process.env.PORT || 5000}`);
