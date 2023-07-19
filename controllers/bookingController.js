@@ -1,6 +1,7 @@
 const Booking = require("../models/booking");
 const catchAsyncError = require("../middlewares/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
+const ApiFeatures = require("../utils/apiFeatures");
 
 const bookingController = {
   createBooking: catchAsyncError(async (req, res, next) => {
@@ -56,14 +57,6 @@ const bookingController = {
     });
   }),
 
-  getAllBooking: catchAsyncError(async (req, res, next) => {
-    const bookings = await Booking.find({ isDeleted: false });
-    res.status(200).json({
-      success: true,
-      bookings,
-    });
-  }),
-
   myBookings: catchAsyncError(async (req, res, next) => {
     const bookings = await Booking.find({
       userId: req.user._id,
@@ -72,6 +65,31 @@ const bookingController = {
     res.status(200).json({
       success: true,
       bookings,
+    });
+  }),
+
+  //ADMIN
+  getAllBooking: catchAsyncError(async (req, res, next) => {
+    resultPerPage = 10; //Default
+    if (req.query.limit) {
+      resultPerPage = parseInt(req.query.limit);
+    }
+
+    const apiFeature = new ApiFeatures(Booking.find(), req.query)
+      .search()
+      .filter()
+      .pagination(resultPerPage);
+
+    const bookings = await apiFeature.query;
+    const bookingsCount = await Booking.countDocuments();
+    const filteredBookingsCount = bookings.length;
+
+    res.status(200).json({
+      success: true,
+      bookings,
+      bookingsCount,
+      resultPerPage,
+      filteredBookingsCount,
     });
   }),
 };

@@ -4,6 +4,7 @@ const ErrorHandler = require("../utils/errorHandler");
 const sendToken = require("../utils/jwtToken");
 const cloudinary = require("cloudinary");
 const emailService = require("../utils/emailService");
+const ApiFeatures = require("../utils/apiFeatures");
 
 const userController = {
   createUser: catchAsyncError(async (req, res, next) => {
@@ -144,10 +145,26 @@ const userController = {
 
   //ADMIN
   getAllUsers: catchAsyncError(async (req, res, next) => {
-    const users = await User.find();
+    resultPerPage = 10; //Default
+    if (req.query.limit) {
+      resultPerPage = parseInt(req.query.limit);
+    }
+
+    const apiFeature = new ApiFeatures(User.find(), req.query)
+      .search()
+      .filter()
+      .pagination(resultPerPage);
+
+    const users = await apiFeature.query;
+    const usersCount = await User.countDocuments();
+    const filteredUsersCount = users.length;
+
     res.status(200).json({
       success: true,
       users,
+      usersCount,
+      resultPerPage,
+      filteredUsersCount,
     });
   }),
 };

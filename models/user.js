@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
   },
+  address: {
+    type: String,
+    default: "HCM",
+  },
   role: {
     type: String,
     enum: ["user", "admin", "banned", "driver", "vip"],
