@@ -29,5 +29,6 @@ router.get(
 
 //ADMIN
 router.get("/all", userController.getAllUsers);
+router.get("/:id", userController.getUserById);
 
 module.exports = router;

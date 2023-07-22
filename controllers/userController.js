@@ -167,6 +167,17 @@ const userController = {
       filteredUsersCount,
     });
   }),
+
+  getUserById: catchAsyncError(async (req, res, next) => {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return next(new ErrorHandler("User not found", 404));
+    }
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  }),
 };
 
 module.exports = userController;

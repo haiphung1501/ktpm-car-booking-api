@@ -68,6 +68,51 @@ const bookingController = {
     });
   }),
 
+  sendMessageBooking: catchAsyncError(async (req, res, next) => {
+    const booking = await Booking.findById(req.params.bookingId);
+    const { content, receiver } = req.body;
+
+    if (!booking) {
+      return next(new ErrorHandler("Booking not found", 404));
+    }
+    if (!message) {
+      return next(new ErrorHandler("Please enter message", 400));
+    }
+
+    booking.messages.push({
+      sender: req.user._id,
+      receiver,
+      content,
+    });
+
+    await booking.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Message sent successfully",
+    });
+  }),
+
+  cancelBooking: catchAsyncError(async (req, res, next) => {
+    const booking = await Booking.findById(req.params.bookingId);
+
+    const { cancelReason } = req.body;
+
+    if (!booking) {
+      return next(new ErrorHandler("Booking not found", 404));
+    }
+
+    booking.bookingStatus = "cancelled";
+    booking.cancelReason = cancelReason;
+
+    await booking.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Booking cancelled successfully",
+    });
+  }),
+
   //ADMIN
   getAllBooking: catchAsyncError(async (req, res, next) => {
     resultPerPage = 10; //Default

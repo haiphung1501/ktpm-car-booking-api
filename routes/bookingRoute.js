@@ -15,6 +15,16 @@ router.get(
   authController.isAuthenticatedUser,
   bookingController.myBookings
 );
+router.put(
+  "/msg/:bookingId",
+  authController.isAuthenticatedUser,
+  bookingController.sendMessageBooking
+);
+router.put(
+  "/cancel/:bookingId",
+  authController.isAuthenticatedUser,
+  bookingController.cancelBooking
+);
 
 //DRIVER
 router.put(
