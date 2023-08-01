@@ -27,6 +27,22 @@ const bookingSchema = new mongoose.Schema({
       type: Number,
     },
   },
+  pickupAddress: {
+    name: {
+      type: String,
+    },
+    fullAddress: {
+      type: String,
+    },
+  },
+  destinationAddress: {
+    name: {
+      type: String,
+    },
+    fullAddress: {
+      type: String,
+    },
+  },
   pickupLocation: {
     lat: {
       type: Number,
@@ -76,6 +92,9 @@ const bookingSchema = new mongoose.Schema({
   price: {
     type: Number,
   },
+  tipping: {
+    type: Number,
+  },
   //SECOND
   duration: {
     type: Number,
@@ -87,6 +106,7 @@ const bookingSchema = new mongoose.Schema({
 
   currentTime: {
     type: Date,
+    default: Date.now,
   },
 
   //SOFT DELETE

@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const socketIO = require("socket.io");
+const cron = require("node-cron");
 mongoose.set("strictQuery", true);
 
 dotenv.config();
@@ -13,6 +14,9 @@ dotenv.config();
 const userRouter = require("./routes/userRoute");
 const carRouter = require("./routes/carRoute");
 const bookingRouter = require("./routes/bookingRoute");
+
+//Controller
+const bookingController = require("./controllers/bookingController");
 
 //Socket
 const setupBookingSocket = require("./sockets/bookingSocket");
@@ -51,13 +55,31 @@ app.use("/health", (req, res) => {
 });
 
 //
-mongoose.connect(process.env.DB_URL, () => {
+mongoose.connect(process.env.DB_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+mongoose.connection.on("connected", () => {
   console.log("Connected to MongoDB");
+});
+
+mongoose.connection.on("error", (error) => {
+  console.error("Error connecting to MongoDB:", error);
 });
 
 //Setup Socket
 setupNotificationSocket(io);
 setupBookingSocket(io);
+
+cron.schedule("0 * * * *", async () => {
+  try {
+    await bookingController.updatePendingBookingToCancelled();
+    console.log("Cron job run successfully");
+  } catch (error) {
+    console.log("Cron job failed");
+  }
+});
 
 server.listen(process.env.PORT || 5000, () => {
   console.log(`Server is running on port ${process.env.PORT || 5000}`);

@@ -4,7 +4,7 @@ const ErrorHandler = require("../utils/errorHandler");
 const ApiFeatures = require("../utils/apiFeatures");
 
 const bookingController = {
-  createBooking: catchAsyncError(async (req, res, next) => {
+  userCreateBooking: catchAsyncError(async (req, res, next) => {
     const { pickupLocation, destination, ...others } = req.body;
 
     const userId = req.user._id;
@@ -28,7 +28,7 @@ const bookingController = {
   }),
 
   //TODO: IMPROVED IN THE FUTURE
-  acceptBooking: catchAsyncError(async (req, res, next) => {
+  driverAcceptBooking: catchAsyncError(async (req, res, next) => {
     const { bookingId } = req.params;
     const driverId = req.user._id;
     const { carId, driverLocation } = req.body;
@@ -53,6 +53,46 @@ const bookingController = {
     res.status(200).json({
       success: true,
       message: "Booking accepted successfully",
+      booking,
+    });
+  }),
+
+  driverProgressBooking: catchAsyncError(async (req, res, next) => {
+    const { bookingId } = req.params;
+
+    const booking = await Booking.findById(bookingId);
+
+    if (!booking) {
+      return next(new ErrorHandler("Booking not found", 404));
+    }
+
+    booking.bookingStatus = "progress";
+
+    await booking.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Booking status updated to progress successfully",
+      booking,
+    });
+  }),
+
+  driverCompletedBooking: catchAsyncError(async (req, res, next) => {
+    const { bookingId } = req.params;
+
+    const booking = await Booking.findById(bookingId);
+
+    if (!booking) {
+      return next(new ErrorHandler("Booking not found", 404));
+    }
+
+    booking.bookingStatus = "completed";
+
+    await booking.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Booking status updated to completed successfully",
       booking,
     });
   }),
@@ -93,13 +133,17 @@ const bookingController = {
     });
   }),
 
-  cancelBooking: catchAsyncError(async (req, res, next) => {
+  userCancelBooking: catchAsyncError(async (req, res, next) => {
     const booking = await Booking.findById(req.params.bookingId);
 
     const { cancelReason } = req.body;
 
     if (!booking) {
       return next(new ErrorHandler("Booking not found", 404));
+    }
+
+    if (booking.bookingStatus !== "pending") {
+      return next(new ErrorHandler("Booking is not pending", 400));
     }
 
     booking.bookingStatus = "cancelled";
@@ -137,6 +181,15 @@ const bookingController = {
       filteredBookingsCount,
     });
   }),
+
+  updatePendingBookingToCancelled: async (req, res, next) => {
+    const oneHourAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    await Booking.updateMany(
+      { bookingStatus: "pending", createdAt: { $lte: oneHourAgo } },
+      { $set: { bookingStatus: "cancelled" } }
+    );
+  },
 };
 
 module.exports = bookingController;

@@ -13,7 +13,7 @@ const userController = {
     if (!email || !password) {
       return next(new ErrorHandler("Please enter email & password", 400));
     }
-    const existingUser = await User.findOne({ email });
+    const existing = await User.findOne({ email });
     if (existingUser) {
       return next(new ErrorHandler("Email already exists", 400));
     }
@@ -133,7 +133,7 @@ const userController = {
     const isPasswordMatched = await user.comparePassword(oldPassword);
 
     if (!isPasswordMatched) {
-      return next(new ErrorHandler("Invalid password", 401));
+      return next(new ErrorHandler("Invalid password", 403));
     }
 
     user.password = newPassword;

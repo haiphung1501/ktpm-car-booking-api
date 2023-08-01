@@ -8,7 +8,7 @@ router.post(
   "/create",
   authController.isAuthenticatedUser,
   authController.authorizeRoles("user", "vip"),
-  bookingController.createBooking
+  bookingController.userCreateBooking
 );
 router.get(
   "/me",
@@ -23,15 +23,29 @@ router.put(
 router.put(
   "/cancel/:bookingId",
   authController.isAuthenticatedUser,
-  bookingController.cancelBooking
+  bookingController.userCancelBooking
 );
 
 //DRIVER
 router.put(
-  "/accept/:bookingId",
+  "driver/accept/:bookingId",
   authController.isAuthenticatedUser,
   authController.authorizeRoles("driver"),
-  bookingController.acceptBooking
+  bookingController.driverAcceptBooking
+);
+
+router.put(
+  "driver/progress/:bookingId",
+  authController.isAuthenticatedUser,
+  authController.authorizeRoles("driver"),
+  bookingController.driverProgressBooking
+);
+
+router.put(
+  "driver/completed/:bookingId",
+  authController.isAuthenticatedUser,
+  authController.authorizeRoles("driver"),
+  bookingController.driverCompletedBooking
 );
 
 //ADMIN
