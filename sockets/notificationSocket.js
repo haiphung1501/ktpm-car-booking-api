@@ -10,7 +10,9 @@ const setupNotificationSocket = (io) => {
       const driver = await User.findById(driverId);
       console.log("Driver connected to notify room", driver.email);
       if (driver) {
-        const newBookings = getPendingBookings();
+        const newBookings = await Booking.find({
+          bookingStatus: "pending",
+        }).populate("userId driverId");
 
         if (newBookings.length > 0) {
           console.log("All pending bookings", newBookings);
@@ -49,9 +51,6 @@ const setupNotificationSocket = (io) => {
 
 const getPendingBookings = async () => {
   return Booking.find({ bookingStatus: "pending" }).populate("userId driverId");
-};
-const emitNewBookings = (io, room, newBookings) => {
-  io.to(room).emit("newBooking", newBookings);
 };
 
 module.exports = setupNotificationSocket;
