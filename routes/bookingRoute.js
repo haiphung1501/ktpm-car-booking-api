@@ -13,8 +13,23 @@ router.post(
 router.get(
   "/me",
   authController.isAuthenticatedUser,
-  bookingController.myBookings
+  bookingController.myUserBookings
 );
+
+router.get(
+  "/driver/me",
+  authController.isAuthenticatedUser,
+  authController.authorizeRoles("driver"),
+  bookingController.myDriverBookings
+);
+//ADMIN
+router.get(
+  "/all",
+  authController.isAuthenticatedUser,
+  bookingController.getAllBooking
+);
+
+// -- WITH ID --
 router.put(
   "/msg/:bookingId",
   authController.isAuthenticatedUser,
@@ -26,29 +41,32 @@ router.put(
   bookingController.userCancelBooking
 );
 
+router.get(
+  "/:bookingId",
+  authController.isAuthenticatedUser,
+  bookingController.getDetailBooking
+);
+
 //DRIVER
 router.put(
-  "driver/accept/:bookingId",
+  "/driver/accept/:bookingId",
   authController.isAuthenticatedUser,
   authController.authorizeRoles("driver"),
   bookingController.driverAcceptBooking
 );
 
 router.put(
-  "driver/progress/:bookingId",
+  "/driver/progress/:bookingId",
   authController.isAuthenticatedUser,
   authController.authorizeRoles("driver"),
   bookingController.driverProgressBooking
 );
 
 router.put(
-  "driver/completed/:bookingId",
+  "/driver/completed/:bookingId",
   authController.isAuthenticatedUser,
   authController.authorizeRoles("driver"),
   bookingController.driverCompletedBooking
 );
-
-//ADMIN
-router.get("/all", bookingController.getAllBooking);
 
 module.exports = router;

@@ -97,11 +97,43 @@ const bookingController = {
     });
   }),
 
-  myBookings: catchAsyncError(async (req, res, next) => {
-    const bookings = await Booking.find({
+  myUserBookings: catchAsyncError(async (req, res, next) => {
+    resultPerPage = 10; //Default
+    if (req.query.limit) {
+      resultPerPage = parseInt(req.query.limit);
+    }
+    const apiFeature = new ApiFeatures(
+      Booking.find({
+        userId: req.user._id,
+      }),
+      req.query
+    )
+      .search()
+      .filter()
+      .pagination(resultPerPage);
+
+    const bookings = await apiFeature.query;
+    const bookingsCount = await Booking.countDocuments({
       userId: req.user._id,
+    });
+    const filteredBookingsCount = bookings.length;
+
+    res.status(200).json({
+      success: true,
+      bookings,
+      bookingsCount,
+      filteredBookingsCount,
+    });
+  }),
+
+  myDriverBookings: catchAsyncError(async (req, res, next) => {
+    const bookings = await Booking.find({
+      driverId: req.user._id,
       isDeleted: false,
     });
+
+    //CHECK FOR total count of bookings
+
     res.status(200).json({
       success: true,
       bookings,
@@ -110,18 +142,17 @@ const bookingController = {
 
   sendMessageBooking: catchAsyncError(async (req, res, next) => {
     const booking = await Booking.findById(req.params.bookingId);
-    const { content, receiver } = req.body;
+    const { content } = req.body;
 
     if (!booking) {
       return next(new ErrorHandler("Booking not found", 404));
     }
-    if (!message) {
+    if (!content) {
       return next(new ErrorHandler("Please enter message", 400));
     }
 
     booking.messages.push({
       sender: req.user._id,
-      receiver,
       content,
     });
 
@@ -130,6 +161,7 @@ const bookingController = {
     res.status(200).json({
       success: true,
       message: "Message sent successfully",
+      messages: booking.messages,
     });
   }),
 
@@ -182,14 +214,16 @@ const bookingController = {
     });
   }),
 
-  updatePendingBookingToCancelled: async (req, res, next) => {
-    const oneHourAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-
-    await Booking.updateMany(
-      { bookingStatus: "pending", createdAt: { $lte: oneHourAgo } },
-      { $set: { bookingStatus: "cancelled" } }
-    );
-  },
+  getDetailBooking: catchAsyncError(async (req, res, next) => {
+    const booking = await Booking.findById(req.params.bookingId);
+    if (!booking) {
+      return next(new ErrorHandler("Booking not found", 404));
+    }
+    res.status(200).json({
+      success: true,
+      booking,
+    });
+  }),
 };
 
 module.exports = bookingController;

@@ -15,8 +15,8 @@ const userRouter = require("./routes/userRoute");
 const carRouter = require("./routes/carRoute");
 const bookingRouter = require("./routes/bookingRoute");
 
-//Controller
-const bookingController = require("./controllers/bookingController");
+//Helper
+const bookingHelper = require("./helpers/bookingHelpers");
 
 //Socket
 const setupBookingSocket = require("./sockets/bookingSocket");
@@ -69,17 +69,17 @@ mongoose.connection.on("error", (error) => {
 });
 
 //Setup Socket
-setupNotificationSocket(io);
-setupBookingSocket(io);
+setupNotificationSocket(io.of("/notification"));
+setupBookingSocket(io.of("/booking"));
 
-cron.schedule("0 * * * *", async () => {
-  try {
-    await bookingController.updatePendingBookingToCancelled();
-    console.log("Cron job run successfully");
-  } catch (error) {
-    console.log("Cron job failed");
-  }
-});
+// cron.schedule("0 * * * *", async () => {
+//   try {
+//     await bookingHelper.updatePendingBookingToCancelled();
+//     console.log("Cron job run successfully");
+//   } catch (error) {
+//     console.log("Cron job failed");
+//   }
+// });
 
 server.listen(process.env.PORT || 5000, () => {
   console.log(`Server is running on port ${process.env.PORT || 5000}`);
