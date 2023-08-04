@@ -12,7 +12,9 @@ const setupNotificationSocket = (io) => {
       if (driver) {
         const newBookings = await Booking.find({
           bookingStatus: "pending",
-        }).populate("userId driverId");
+        })
+          .populate("userId driverId")
+          .lean();
 
         if (newBookings.length > 0) {
           console.log("All pending bookings", newBookings);
@@ -31,7 +33,9 @@ const setupNotificationSocket = (io) => {
         console.log("run this");
         const newBookings = await Booking.find({
           bookingStatus: "pending",
-        }).populate("userId driverId");
+        })
+          .populate("userId driverId")
+          .lean();
         io.emit("newBooking", newBookings);
       }
     });
