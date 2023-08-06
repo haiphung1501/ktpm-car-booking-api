@@ -127,16 +127,31 @@ const bookingController = {
   }),
 
   myDriverBookings: catchAsyncError(async (req, res, next) => {
-    const bookings = await Booking.find({
-      driverId: req.user._id,
-      isDeleted: false,
-    });
+    resultPerPage = 10; //Default
+    if (req.query.limit) {
+      resultPerPage = parseInt(req.query.limit);
+    }
+    const apiFeature = new ApiFeatures(
+      Booking.find({
+        driverId: req.user._id,
+      }),
+      req.query
+    )
+      .search()
+      .filter()
+      .pagination(resultPerPage);
 
-    //CHECK FOR total count of bookings
+    const bookings = await apiFeature.query;
+    const bookingsCount = await Booking.countDocuments({
+      driverId: req.user._id,
+    });
+    const filteredBookingsCount = bookings.length;
 
     res.status(200).json({
       success: true,
       bookings,
+      bookingsCount,
+      filteredBookingsCount,
     });
   }),
 
@@ -151,8 +166,21 @@ const bookingController = {
       return next(new ErrorHandler("Please enter message", 400));
     }
 
+    let sender, receiver;
+
+    if (req.user.role === "user") {
+      sender = req.user._id;
+      receiver = booking.driverId;
+    } else if (req.user.role === "driver") {
+      sender = req.user._id;
+      receiver = booking.userId;
+    } else {
+      return next(new ErrorHandler("Invalid role", 400));
+    }
+
     booking.messages.push({
-      sender: req.user._id,
+      sender,
+      receiver,
       content,
     });
 

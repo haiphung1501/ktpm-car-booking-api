@@ -23,6 +23,7 @@ const userController = {
     const otpExpire = new Date(Date.now() + 10 * 60 * 1000);
 
     const user = await User.create({
+      displayName: email,
       email,
       password,
       otp,
@@ -40,6 +41,41 @@ const userController = {
       message: "OTP sent to your email",
       user,
     });
+  }),
+
+  updateUserProfile: catchAsyncError(async (req, res, next) => {
+    const { displayName, avatar } = req.body;
+
+    const user = await User.findById(req.user.id);
+
+    if (user) {
+      user.displayName = displayName || user.displayName;
+      if (avatar) {
+        const image_id = user.avatar.public_id;
+
+        await cloudinary.v2.uploader.destroy(image_id);
+
+        const result = await cloudinary.v2.uploader.upload(avatar, {
+          folder: "avatars",
+          width: 150,
+          crop: "scale",
+        });
+
+        user.avatar = {
+          public_id: result.public_id,
+          url: result.secure_url,
+        };
+      }
+
+      await user.save();
+
+      res.status(200).json({
+        success: true,
+        user,
+      });
+    } else {
+      return next(new ErrorHandler("User not found", 404));
+    }
   }),
 
   loginUser: catchAsyncError(async (req, res, next) => {

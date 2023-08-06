@@ -17,6 +17,12 @@ router.post("/logout", userController.logoutUser);
 router.post("/verify", userController.verifyUser);
 
 router.post(
+  "/update",
+  authController.isAuthenticatedUser,
+  userController.updateUserProfile
+);
+
+router.post(
   "/updatepassword",
   authController.isAuthenticatedUser,
   userController.updateUserPassword

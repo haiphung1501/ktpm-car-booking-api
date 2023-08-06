@@ -41,12 +41,6 @@ router.put(
   bookingController.userCancelBooking
 );
 
-router.get(
-  "/:bookingId",
-  authController.isAuthenticatedUser,
-  bookingController.getDetailBooking
-);
-
 //DRIVER
 router.put(
   "/driver/accept/:bookingId",
@@ -67,6 +61,12 @@ router.put(
   authController.isAuthenticatedUser,
   authController.authorizeRoles("driver"),
   bookingController.driverCompletedBooking
+);
+
+router.get(
+  "/:bookingId",
+  authController.isAuthenticatedUser,
+  bookingController.getDetailBooking
 );
 
 module.exports = router;
