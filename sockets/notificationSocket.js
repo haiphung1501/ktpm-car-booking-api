@@ -58,6 +58,23 @@ const setupNotificationSocket = (io) => {
       });
     });
 
+    // User connect to room bookingId when create booking to listen for any update
+    socket.on("createBooking", (bookingId) => {
+      socket.join(bookingId);
+      console.log("User joined room", bookingId);
+
+      // Watch for leaving
+      Booking.watch({ _id: bookingId }).on("change", async (change) => {
+        if (
+          change.operationType === "update" &&
+          change.fullDocument.bookingStatus === "completed"
+        ) {
+          socket.leave(bookingId);
+          console.log("User finish booking", bookingId);
+        }
+      });
+    });
+
     // Driver disconnects from booking updates when they complete a booking
     socket.on("completeBooking", (bookingId) => {
       socket.leave(bookingId);
