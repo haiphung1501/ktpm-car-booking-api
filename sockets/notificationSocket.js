@@ -39,51 +39,44 @@ const setupNotificationSocket = (io) => {
       }
     });
 
+    // User connect to room bookingId when create booking to listen for any update
+    socket.on("createBooking", (bookingId) => {
+      socket.join(bookingId);
+      console.log("User joined room", bookingId);
+      handleBookingUpdate(io, socket, bookingId);
+    });
+
     // Driver disconnects from new booking notifications when they accept a booking
     socket.on("acceptBooking", (bookingId) => {
       socket.leave("driverAvailableRoom");
       socket.join(bookingId);
       console.log("Driver joined room", bookingId);
 
-      //Watch for any update of that bookingId
-      Booking.watch({ _id: bookingId }).on("change", async (change) => {
-        if (change.operationType === "update") {
-          //emit to driver
-          const updatedBooking = await Booking.findById(bookingId)
-            .populate("userId driverId messages.sender messages.receiver")
-            .lean();
-
-          io.to(bookingId).emit("bookingUpdate", updatedBooking);
-        }
-      });
-    });
-
-    // User connect to room bookingId when create booking to listen for any update
-    socket.on("createBooking", (bookingId) => {
-      socket.join(bookingId);
-      console.log("User joined room", bookingId);
-
-      // Watch for leaving
-      Booking.watch({ _id: bookingId }).on("change", async (change) => {
+      //Watch for completed booking
+      Booking.watch().on("change", async (change) => {
         if (
           change.operationType === "update" &&
-          change.fullDocument.bookingStatus === "completed"
+          change.updateDescription.updatedFields.bookingStatus === "completed"
         ) {
-          socket.leave(bookingId);
-          console.log("User finish booking", bookingId);
+          console.log("Booking completed");
+          setTimeout(() => {
+            socket.leave(bookingId);
+            socket.join("driverAvailableRoom");
+          }, 2000);
+          console.log("Driver left room", bookingId);
         }
       });
     });
 
     // Driver disconnects from booking updates when they complete a booking
-    socket.on("completeBooking", (bookingId) => {
+
+    socket.on("cancelBooking", (bookingId) => {
       socket.leave(bookingId);
-      console.log("Driver left room", bookingId);
-      socket.join("driverAvailableRoom");
+      console.log("User cancel booking - left room", bookingId);
     });
 
     socket.on("disconnect", () => {
-      console.log("Client disconnected");
+      console.log("Client disconnected from socket");
     });
   });
 };
@@ -100,4 +93,37 @@ const emitNewBookings = (io, room, newBookings) => {
   io.to(room).emit("newBooking", newBookings);
 };
 
+const handleBookingUpdate = (io, socket, bookingId) => {
+  const changeListener = async (change) => {
+    if (change.operationType === "update") {
+      const updatedBooking = await Booking.findById(bookingId)
+        .populate("userId driverId messages.sender messages.receiver")
+        .lean();
+
+      if (
+        change.updateDescription.updatedFields.bookingStatus === "completed"
+      ) {
+        io.to(bookingId).emit("bookingUpdate", updatedBooking);
+
+        Booking.watch({ _id: bookingId }).removeListener(
+          "change",
+          changeListener
+        );
+
+        socket.leave(bookingId);
+      } else {
+        console.log(updatedBooking);
+        io.to(bookingId).emit("bookingUpdate", updatedBooking);
+      }
+
+      socket.on("disconnect", () => {
+        Booking.watch({ _id: bookingId }).removeListener(
+          "change",
+          changeListener
+        );
+      });
+    }
+  };
+  Booking.watch({ _id: bookingId }).on("change", changeListener);
+};
 module.exports = setupNotificationSocket;
