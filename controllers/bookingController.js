@@ -68,6 +68,7 @@ const bookingController = {
     }
 
     booking.bookingStatus = "progress";
+    booking.pickupTime = new Date();
 
     await booking.save();
 
@@ -88,6 +89,7 @@ const bookingController = {
     }
 
     booking.bookingStatus = "completed";
+    booking.dropOffTime = new Date();
 
     await booking.save();
 

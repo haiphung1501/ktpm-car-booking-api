@@ -58,7 +58,8 @@ const setupNotificationSocket = (io) => {
           change.operationType === "update" &&
           (change.updateDescription.updatedFields.bookingStatus ===
             "completed" ||
-            change.updateDescription.updatedFields.bookingStatus === "canceled")
+            change.updateDescription.updatedFields.bookingStatus ===
+              "cancelled")
         ) {
           console.log("Booking completed");
           setTimeout(() => {
@@ -99,7 +100,7 @@ const handleBookingUpdate = (io, socket, bookingId) => {
 
       if (
         change.updateDescription.updatedFields.bookingStatus === "completed" ||
-        change.updateDescription.updatedFields.bookingStatus === "canceled"
+        change.updateDescription.updatedFields.bookingStatus === "cancelled"
       ) {
         io.to(bookingId).emit("bookingUpdate", updatedBooking);
 
