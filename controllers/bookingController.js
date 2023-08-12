@@ -40,7 +40,7 @@ const bookingController = {
       return next(new ErrorHandler("Booking not found", 404));
     }
 
-    if (!driverId || !carId || !driverLocation) {
+    if (!driverId || !driverLocation) {
       return next(new ErrorHandler("Please enter all fields", 400));
     }
 
