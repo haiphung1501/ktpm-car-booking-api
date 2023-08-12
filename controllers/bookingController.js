@@ -34,7 +34,9 @@ const bookingController = {
     const driverId = req.user._id;
     const { driverLocation } = req.body;
 
-    const booking = await Booking.findById(bookingId);
+    const booking = await Booking.findById(bookingId).populate(
+      "userId driverId"
+    );
 
     if (!booking) {
       return next(new ErrorHandler("Booking not found", 404));
@@ -61,7 +63,9 @@ const bookingController = {
   driverProgressBooking: catchAsyncError(async (req, res, next) => {
     const { bookingId } = req.params;
 
-    const booking = await Booking.findById(bookingId);
+    const booking = await Booking.findById(bookingId).populate(
+      "userId driverId"
+    );
 
     if (!booking) {
       return next(new ErrorHandler("Booking not found", 404));
@@ -82,7 +86,9 @@ const bookingController = {
   driverCompletedBooking: catchAsyncError(async (req, res, next) => {
     const { bookingId } = req.params;
 
-    const booking = await Booking.findById(bookingId);
+    const booking = await Booking.findById(bookingId).populate(
+      "userId driverId"
+    );
 
     if (!booking) {
       return next(new ErrorHandler("Booking not found", 404));
