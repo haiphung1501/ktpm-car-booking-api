@@ -1,4 +1,5 @@
 const Booking = require("../models/booking");
+const User = require("../models/user");
 const catchAsyncError = require("../middlewares/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 const ApiFeatures = require("../utils/apiFeatures");
@@ -31,7 +32,7 @@ const bookingController = {
   driverAcceptBooking: catchAsyncError(async (req, res, next) => {
     const { bookingId } = req.params;
     const driverId = req.user._id;
-    const { carId, driverLocation } = req.body;
+    const { driverLocation } = req.body;
 
     const booking = await Booking.findById(bookingId);
 
@@ -44,7 +45,7 @@ const bookingController = {
     }
 
     booking.driverId = driverId;
-    booking.carId = carId;
+    booking.carId = req.user.car._id;
     booking.driverLocation = driverLocation;
     booking.bookingStatus = "accepted";
 
@@ -250,6 +251,46 @@ const bookingController = {
     res.status(200).json({
       success: true,
       booking,
+    });
+  }),
+
+  userCreateReview: catchAsyncError(async (req, res, next) => {
+    const booking = await Booking.findById(req.params.bookingId);
+
+    if (!booking) {
+      return next(new ErrorHandler("Booking not found", 404));
+    }
+
+    if (booking.bookingStatus !== "completed") {
+      return next(new ErrorHandler("Booking is not completed", 400));
+    }
+
+    const driver = await User.findById(booking.driverId);
+    const { rating, comment } = req.body;
+    const review = {
+      booking: booking._id,
+      user: req.user._id,
+      name: req.user.displayName,
+      rating: Number(rating),
+      comment,
+    };
+
+    driver.driverReviews.push(review);
+    driver.driverNumOfReviews = driver.driverReviews.length;
+
+    let avg = 0;
+
+    driver.driverReviews.forEach((review) => {
+      avg += review.rating;
+    });
+
+    driver.driverRating = avg / driver.driverReviews.length;
+
+    await driver.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+      success: true,
+      message: "Review added successfully",
     });
   }),
 };

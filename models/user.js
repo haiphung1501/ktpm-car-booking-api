@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["user", "admin", "banned", "driver", "vip"],
+    enum: ["user", "admin", "banned", "driver", "vip", "restricted"],
     default: "user",
   },
   verified: {
@@ -67,6 +67,10 @@ const userSchema = new mongoose.Schema({
       ref: "Car",
     },
   ],
+  car: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Car",
+  },
   driverAvailable: {
     type: Boolean,
   },
@@ -74,6 +78,31 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  driverNumOfReviews: {
+    type: Number,
+    default: 0,
+  },
+  driverReviews: [
+    {
+      booking: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Booking",
+      },
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+      name: {
+        type: String,
+      },
+      rating: {
+        type: Number,
+      },
+      comment: {
+        type: String,
+      },
+    },
+  ],
 
   //SOFT DELETE
   isDeleted: {

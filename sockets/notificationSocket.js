@@ -56,7 +56,9 @@ const setupNotificationSocket = (io) => {
       Booking.watch().on("change", async (change) => {
         if (
           change.operationType === "update" &&
-          change.updateDescription.updatedFields.bookingStatus === "completed"
+          (change.updateDescription.updatedFields.bookingStatus ===
+            "completed" ||
+            change.updateDescription.updatedFields.bookingStatus === "canceled")
         ) {
           console.log("Booking completed");
           setTimeout(() => {
@@ -69,11 +71,6 @@ const setupNotificationSocket = (io) => {
     });
 
     // Driver disconnects from booking updates when they complete a booking
-
-    socket.on("cancelBooking", (bookingId) => {
-      socket.leave(bookingId);
-      console.log("User cancel booking - left room", bookingId);
-    });
 
     socket.on("disconnect", () => {
       console.log("Client disconnected from socket");
@@ -101,7 +98,8 @@ const handleBookingUpdate = (io, socket, bookingId) => {
         .lean();
 
       if (
-        change.updateDescription.updatedFields.bookingStatus === "completed"
+        change.updateDescription.updatedFields.bookingStatus === "completed" ||
+        change.updateDescription.updatedFields.bookingStatus === "canceled"
       ) {
         io.to(bookingId).emit("bookingUpdate", updatedBooking);
 

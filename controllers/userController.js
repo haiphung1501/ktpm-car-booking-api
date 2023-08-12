@@ -5,6 +5,7 @@ const sendToken = require("../utils/jwtToken");
 const cloudinary = require("cloudinary");
 const emailService = require("../utils/emailService");
 const ApiFeatures = require("../utils/apiFeatures");
+const Booking = require("../models/booking");
 
 const userController = {
   createUser: catchAsyncError(async (req, res, next) => {
@@ -44,7 +45,7 @@ const userController = {
   }),
 
   updateUserProfile: catchAsyncError(async (req, res, next) => {
-    const { displayName, avatar } = req.body;
+    const { displayName, avatar, ...others } = req.body;
 
     const user = await User.findById(req.user.id);
 
@@ -66,6 +67,8 @@ const userController = {
           url: result.secure_url,
         };
       }
+
+      Object.assign(user, others);
 
       await user.save();
 
@@ -206,12 +209,14 @@ const userController = {
 
   getUserById: catchAsyncError(async (req, res, next) => {
     const user = await User.findById(req.params.id);
+    const bookings = await Booking.find({ userId: req.params.id });
     if (!user) {
       return next(new ErrorHandler("User not found", 404));
     }
     res.status(200).json({
       success: true,
       user,
+      bookings,
     });
   }),
 };

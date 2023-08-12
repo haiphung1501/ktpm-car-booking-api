@@ -69,4 +69,11 @@ router.get(
   bookingController.getDetailBooking
 );
 
+router.put(
+  "/review/:bookingId",
+  authController.isAuthenticatedUser,
+  authController.authorizeRoles("user"),
+  bookingController.userCreateReview
+);
+
 module.exports = router;

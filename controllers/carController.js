@@ -22,8 +22,9 @@ const carController = {
       licensePlate,
     });
 
-    //Driver is the user who created the car
+    // Driver is the user who created the car
     req.user.cars.push(car._id);
+    req.user.car = car._id;
     await req.user.save();
 
     res.status(200).json({
