@@ -53,10 +53,14 @@ const bookingController = {
 
     await booking.save();
 
+    const populatedBooking = await Booking.findById(bookingId).populate(
+      "userId driverId"
+    );
+
     res.status(200).json({
       success: true,
       message: "Booking accepted successfully",
-      booking,
+      booking: populatedBooking,
     });
   }),
 
@@ -107,14 +111,14 @@ const bookingController = {
   }),
 
   myUserBookings: catchAsyncError(async (req, res, next) => {
-    resultPerPage = 10; //Default
+    resultPerPage = 100; //Default
     if (req.query.limit) {
       resultPerPage = parseInt(req.query.limit);
     }
     const apiFeature = new ApiFeatures(
       Booking.find({
         userId: req.user._id,
-      }),
+      }).populate("driverId userId userId.car"),
       req.query
     )
       .search()
@@ -143,7 +147,7 @@ const bookingController = {
     const apiFeature = new ApiFeatures(
       Booking.find({
         driverId: req.user._id,
-      }),
+      }).populate("driverId userId userId.car"),
       req.query
     )
       .search()
@@ -203,7 +207,9 @@ const bookingController = {
   }),
 
   userCancelBooking: catchAsyncError(async (req, res, next) => {
-    const booking = await Booking.findById(req.params.bookingId);
+    const booking = await Booking.findById(req.params.bookingId).populate(
+      "userId driverId driverId.car"
+    );
 
     const { cancelReason } = req.body;
 
@@ -228,12 +234,15 @@ const bookingController = {
 
   //ADMIN
   getAllBooking: catchAsyncError(async (req, res, next) => {
-    resultPerPage = 10; //Default
+    resultPerPage = 100; //Default
     if (req.query.limit) {
       resultPerPage = parseInt(req.query.limit);
     }
 
-    const apiFeature = new ApiFeatures(Booking.find(), req.query)
+    const apiFeature = new ApiFeatures(
+      Booking.find().populate("userId driverId driverId.car"),
+      req.query
+    )
       .search()
       .filter()
       .pagination(resultPerPage);
@@ -252,7 +261,9 @@ const bookingController = {
   }),
 
   getDetailBooking: catchAsyncError(async (req, res, next) => {
-    const booking = await Booking.findById(req.params.bookingId);
+    const booking = await Booking.findById(req.params.bookingId).populate(
+      "userId driverId driverId.car"
+    );
     if (!booking) {
       return next(new ErrorHandler("Booking not found", 404));
     }

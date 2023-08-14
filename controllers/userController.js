@@ -184,7 +184,7 @@ const userController = {
 
   //ADMIN
   getAllUsers: catchAsyncError(async (req, res, next) => {
-    resultPerPage = 10; //Default
+    resultPerPage = 100; //Default
     if (req.query.limit) {
       resultPerPage = parseInt(req.query.limit);
     }
