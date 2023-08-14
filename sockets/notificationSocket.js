@@ -95,7 +95,9 @@ const handleBookingUpdate = (io, socket, bookingId) => {
   const changeListener = async (change) => {
     if (change.operationType === "update") {
       const updatedBooking = await Booking.findById(bookingId)
-        .populate("userId driverId messages.sender messages.receiver")
+        .populate(
+          "userId driverId messages.sender messages.receiver driverId.car"
+        )
         .lean();
 
       if (
