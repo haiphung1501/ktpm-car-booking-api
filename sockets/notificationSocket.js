@@ -10,11 +10,23 @@ const setupNotificationSocket = (io) => {
       const driver = await User.findById(driverId);
       console.log("Driver connected to notify room", driver.email);
       if (driver) {
-        const newBookings = await getPendingBookings();
+        // Check if any booking with status accept, progress that have driverId = driverId
 
-        if (newBookings.length > 0) {
-          console.log("Emitted new booking to driver");
-          emitNewBookings(io, "driverAvailableRoom", newBookings);
+        const alreadyHaveBooking = await Booking.findOne({
+          driverId: driverId,
+          bookingStatus: { $in: ["accepted", "inProgress"] },
+        });
+
+        if (alreadyHaveBooking) {
+          console.log("Driver already have booking");
+          socket.join(alreadyHaveBooking._id);
+        } else {
+          const newBookings = await getPendingBookings();
+
+          if (newBookings.length > 0) {
+            console.log("Emitted new booking to driver");
+            emitNewBookings(io, "driverAvailableRoom", newBookings);
+          }
         }
       } else {
         console.log("Driver not found");
@@ -36,6 +48,13 @@ const setupNotificationSocket = (io) => {
       ) {
         const newBookings = await getPendingBookings();
         emitNewBookings(io, "driverAvailableRoom", newBookings);
+
+        // Emit to user when create booking
+
+        io.to(change.documentKey._id).emit(
+          "bookingUpdate",
+          change.fullDocument
+        );
       }
     });
 
@@ -94,11 +113,9 @@ const emitNewBookings = (io, room, newBookings) => {
 const handleBookingUpdate = (io, socket, bookingId) => {
   const changeListener = async (change) => {
     if (change.operationType === "update") {
-      const updatedBooking = await Booking.findById(bookingId)
-        .populate(
-          "userId driverId messages.sender messages.receiver driverId.car"
-        )
-        .lean();
+      const updatedBooking = await Booking.findById(bookingId).populate(
+        "driverId.car carId userId driverId driverId.car messages.sender messages.receiver"
+      );
 
       if (
         change.updateDescription.updatedFields.bookingStatus === "completed" ||

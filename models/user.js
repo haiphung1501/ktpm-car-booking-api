@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
+const Car = require("./car");
 const userSchema = new mongoose.Schema({
   displayName: {
     type: String,
