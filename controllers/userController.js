@@ -153,10 +153,20 @@ const userController = {
   }),
 
   getUserDetail: catchAsyncError(async (req, res, next) => {
-    const user = await User.findById(req.user.id).populate("cars");
+    const user = await User.findById(req.user.id).populate("car cars");
+
+    if (!user) {
+      return next(new ErrorHandler("User not found", 401));
+    }
+
+    const userBooking = await Booking.find({ user: req.user.id }).populate(
+      "userId driverId carId"
+    );
+
     res.status(200).json({
       success: true,
       user,
+      userBooking,
     });
   }),
 
@@ -209,7 +219,9 @@ const userController = {
 
   getUserById: catchAsyncError(async (req, res, next) => {
     const user = await User.findById(req.params.id);
-    const bookings = await Booking.find({ userId: req.params.id });
+    const bookings = await Booking.find({ userId: req.params.id }).populate(
+      "userId driverId carId"
+    );
     if (!user) {
       return next(new ErrorHandler("User not found", 404));
     }

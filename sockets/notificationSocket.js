@@ -15,7 +15,9 @@ const setupNotificationSocket = (io) => {
         const alreadyHaveBooking = await Booking.findOne({
           driverId: driverId,
           bookingStatus: { $in: ["accepted", "inProgress"] },
-        });
+        }).populate(
+          "driverId.car carId userId driverId driverId.car messages.sender messages.receiver"
+        );
 
         if (alreadyHaveBooking) {
           console.log("Driver already have booking");
