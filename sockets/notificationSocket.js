@@ -86,6 +86,9 @@ const setupNotificationSocket = (io) => {
           setTimeout(() => {
             socket.leave(bookingId);
             socket.join("driverAvailableRoom");
+            getPendingBookings().then((newBookings) => {
+              emitNewBookings(io, "driverAvailableRoom", newBookings);
+            });
           }, 2000);
           console.log("Driver left room", bookingId);
         }
@@ -104,7 +107,7 @@ const getPendingBookings = async () => {
   return Booking.find({
     bookingStatus: "pending",
   })
-    .populate("userId driverId")
+    .populate("userId driverId carId")
     .lean();
 };
 
