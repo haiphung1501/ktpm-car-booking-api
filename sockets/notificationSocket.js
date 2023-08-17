@@ -22,6 +22,10 @@ const setupNotificationSocket = (io) => {
         if (alreadyHaveBooking) {
           console.log("Driver already have booking");
           socket.join(alreadyHaveBooking._id);
+          io.to(alreadyHaveBooking.id).emit(
+            "bookingUpdate",
+            alreadyHaveBooking
+          );
         } else {
           const newBookings = await getPendingBookings();
 

@@ -34,6 +34,8 @@ const bookingController = {
     const driverId = req.user._id;
     const { driverLocation } = req.body;
 
+    const user = await User.findById(req.user._id);
+
     const booking = await Booking.findById(bookingId).populate(
       "userId driverId"
     );
@@ -50,7 +52,9 @@ const bookingController = {
     booking.carId = req.user.car._id;
     booking.driverLocation = driverLocation;
     booking.bookingStatus = "accepted";
+    user.driverAvailable = false;
 
+    await user.save();
     await booking.save();
 
     const populatedBooking = await Booking.findById(bookingId).populate(
@@ -89,6 +93,7 @@ const bookingController = {
 
   driverCompletedBooking: catchAsyncError(async (req, res, next) => {
     const { bookingId } = req.params;
+    const user = await User.findById(req.user._id);
 
     const booking = await Booking.findById(bookingId).populate(
       "userId driverId"
@@ -100,7 +105,9 @@ const bookingController = {
 
     booking.bookingStatus = "completed";
     booking.dropOffTime = new Date();
+    user.driverAvailable = true;
 
+    await user.save();
     await booking.save();
 
     res.status(200).json({
