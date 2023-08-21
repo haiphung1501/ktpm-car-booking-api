@@ -75,7 +75,7 @@ const setupNotificationSocket = (io) => {
     socket.on("acceptBooking", (bookingId) => {
       socket.leave("driverAvailableRoom");
       socket.join(bookingId);
-      handleBookingUpdate(io, socket, bookingId);
+      // handleBookingUpdate(io, socket, bookingId);
       console.log("Driver joined room", bookingId);
 
       //Watch for completed booking
