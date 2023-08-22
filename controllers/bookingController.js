@@ -304,6 +304,8 @@ const bookingController = {
     driver.driverReviews.push(review);
     driver.driverNumOfReviews = driver.driverReviews.length;
 
+    booking.isReviewed = true;
+
     let avg = 0;
 
     driver.driverReviews.forEach((review) => {
@@ -313,6 +315,7 @@ const bookingController = {
     driver.driverRating = avg / driver.driverReviews.length;
 
     await driver.save({ validateBeforeSave: false });
+    await booking.save({ validateBeforeSave: false });
 
     res.status(200).json({
       success: true,

@@ -103,12 +103,14 @@ const bookingSchema = new mongoose.Schema({
   cancelReason: {
     type: String,
   },
-
   currentTime: {
     type: Date,
-    default: Date.now,
+    default: Date.now(),
   },
-
+  isReviewed: {
+    type: Boolean,
+    default: false,
+  },
   //SOFT DELETE
   isDeleted: {
     type: Boolean,
