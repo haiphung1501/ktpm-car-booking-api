@@ -231,6 +231,42 @@ const userController = {
       bookings,
     });
   }),
+
+  updateUserById: catchAsyncError(async (req, res, next) => {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return next(new ErrorHandler("User not found", 404));
+    }
+
+    const { ...others } = req.body;
+
+    Object.assign(user, others);
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  }),
+
+  deleteUserById: catchAsyncError(async (req, res, next) => {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return next(new ErrorHandler("User not found", 404));
+    }
+
+    user.isDeleted = true;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  }),
 };
 
 module.exports = userController;

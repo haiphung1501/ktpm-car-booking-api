@@ -36,5 +36,7 @@ router.get(
 //ADMIN
 router.get("/all", userController.getAllUsers);
 router.get("/:id", userController.getUserById);
+router.put("/:id", userController.updateUserById);
+router.put("/delete/:id", userController.deleteUserById);
 
 module.exports = router;
