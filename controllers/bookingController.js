@@ -3,10 +3,29 @@ const User = require("../models/user");
 const catchAsyncError = require("../middlewares/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 const ApiFeatures = require("../utils/apiFeatures");
+const axios = require("axios");
+const moment = require("moment-timezone");
+
+const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
+
+isHighDemand = () => {
+  const hour = moment().tz("Asia/Ho_Chi_Minh").hour();
+  if (hour >= 6 && hour <= 9) {
+    return true;
+  }
+  if (hour >= 16 && hour <= 12) {
+    return true;
+  }
+  return false;
+};
 
 const bookingController = {
   userCreateBooking: catchAsyncError(async (req, res, next) => {
     const { pickupLocation, destination, ...others } = req.body;
+    const lat = req.body.pickupLocation.lat;
+    const lng = req.body.pickupLocation.lng;
+    const pickupAddress = req.body.pickupAddress.fullAddress;
+    const destinationAddress = req.body.destinationAddress.fullAddress;
 
     const userId = req.user._id;
 
@@ -14,10 +33,57 @@ const bookingController = {
       return next(new ErrorHandler("Please enter all fields", 400));
     }
 
+    var isPriceIncreased = false;
+
+    // check weather using API
+    const weatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${WEATHER_API_KEY}`;
+
+    try {
+      const weatherResponse = await axios.get(weatherApiUrl);
+
+      // check if res has weather.main == Rain
+      const weather = weatherResponse.data;
+      console.log(weather);
+      if (
+        weather.weather[0].main == "Rain" ||
+        weather.weather[0].main == "Thunderstorm" ||
+        weather.weather[0].main == "Drizzle"
+      ) {
+        isPriceIncreased = true;
+      }
+    } catch (err) {
+      console.log("Error when fetching weather data", err);
+    }
+
+    // Check if pickup address contain "Quận 1" string
+
+    if (
+      pickupAddress &&
+      (pickupAddress.includes("Quận 1") ||
+        pickupAddress.includes("Quận 5") ||
+        pickupAddress.includes("Quận 3"))
+    ) {
+      isPriceIncreased = true;
+    }
+
+    if (
+      destinationAddress &&
+      (destinationAddress.includes("Quận 1") ||
+        destinationAddress.includes("Quận 5") ||
+        destinationAddress.includes("Quận 3"))
+    ) {
+      isPriceIncreased = true;
+    }
+
+    if (isHighDemand()) {
+      isPriceIncreased = true;
+    }
+
     const booking = await Booking.create({
       userId,
       pickupLocation,
       destination,
+      isPriceIncreased,
       ...others,
     });
 

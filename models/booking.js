@@ -111,6 +111,10 @@ const bookingSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isPriceIncreased: {
+    type: Boolean,
+    default: false,
+  },
   //SOFT DELETE
   isDeleted: {
     type: Boolean,
